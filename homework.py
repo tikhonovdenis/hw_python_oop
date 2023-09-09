@@ -1,25 +1,26 @@
+from dataclasses import dataclass, asdict
+from typing import ClassVar
+from typing import Type
+
+
+@dataclass(frozen=True)
 class InfoMessage:
     """Информационное сообщение о тренировке."""
-    def __init__(self,
-                 training_type: str,
-                 duration: float,
-                 distance: float,
-                 speed: float,
-                 calories: float,
-                 ) -> None:
-        self.training_type: str = training_type  # имя класса тренировки
-        self.duration: float = duration  # длительность тренировки в часах
-        self.distance: float = distance  # дистанция в км, за время тренировки
-        self.speed: float = speed  # с редняя скорость
-        self.calories: float = calories  # затраченное кол-во ккал
-        # за тренировку
+    training_type: str
+    duration: float
+    distance: float
+    speed: float
+    calories: float
+    INFO_MESSAGE: ClassVar[str] = (
+        'Тип тренировки: {training_type}; '
+        'Длительность: {duration:.3f} ч.; '
+        'Дистанция: {distance:.3f} км; '
+        'Ср. скорость: {speed:.3f} км/ч; '
+        'Потрачено ккал: {calories:.3f}.')
 
     def get_message(self) -> str:
-        return (f'Тип тренировки: {self.training_type}; '
-                f'Длительность: {self.duration:.3f} ч.; '
-                f'Дистанция: {self.distance:.3f} км; '
-                f'Ср. скорость: {self.speed:.3f} км/ч; '
-                f'Потрачено ккал: {self.calories:.3f}.')
+        "Возврат строки сообщения"
+        return self.INFO_MESSAGE.format(**asdict(self))
 
 
 class Training:
@@ -43,10 +44,9 @@ class Training:
 
     def get_mean_speed(self) -> float:
         """Получить среднюю скорость движения."""
-        avr_speed = self.get_distance() / self.duration
-        return avr_speed
+        return self.get_distance() / self.duration
 
-    def get_spent_calories(self) -> float:
+    def get_spent_calories(self) -> float: # type: ignore
         """Получить количество затраченных калорий."""
         pass  # подсчёт для каждого вида тренировки будет свой
 
@@ -126,17 +126,15 @@ class Swimming(Training):
         return self.action * self.LEN_STEP / self.M_IN_KM
 
 
-def read_package(workout_type: str, data: list[int]) -> Training:
+def read_package(workout_type: str, data: list[float]) -> Training:
     """Прочитать данные полученные от датчиков."""
-    workout: dict = {
+    workout: dict[str, Type[Training]] = {
         'SWM': Swimming,
         'RUN': Running,
         'WLK': SportsWalking}
 
     if workout_type in workout and len(data) > 0:
-        return workout[workout_type](*data)
-    else:
-        print('Код тренировки или данные не получены!')
+        return workout[workout_type](*data)  # type: ignore
 
 
 def main(training: Training) -> None:
