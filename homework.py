@@ -46,7 +46,7 @@ class Training:
         """Получить среднюю скорость движения."""
         return self.get_distance() / self.duration
 
-    def get_spent_calories(self) -> float: # type: ignore
+    def get_spent_calories(self) -> float:  # type: ignore
         """Получить количество затраченных калорий."""
         pass  # подсчёт для каждого вида тренировки будет свой
 
